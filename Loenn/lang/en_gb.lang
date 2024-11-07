@@ -1,0 +1,6 @@
+mods.MadelineCrystal.name=Madeline Crystal
+
+entities.MadelineCrystal/MCrystalSwitcher.placements.name.switcher=Madeline Crystal Switcher
+
+triggers.MadelineCrystal/SetCrystalTrigger.placements.name.incrystal=Set In-Crystal Trigger
+triggers.MadelineCrystal/CrystalZoneTrigger.placements.name.zone=Crystal Zone Trigger

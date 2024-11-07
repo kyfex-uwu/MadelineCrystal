@@ -1,0 +1,6 @@
+- Name: MadelineCrystal
+  Version: 0.9.9
+  DLL: bin/MadelineCrystal.dll
+  Dependencies:
+    - Name: EverestCore
+      Version: 1.4673.0
