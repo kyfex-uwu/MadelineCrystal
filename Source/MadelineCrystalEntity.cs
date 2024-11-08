@@ -7,6 +7,7 @@ using System.Collections;
 namespace Celeste.Mod.MadelineCrystal {
     public class MadelineCrystalEntity : TheoCrystal {
         public static bool isCrystal {  get; private set; }//todo: make this a flag also
+        public static readonly string isCrystalFlag = "MadelineCrystalHelper/isCrystal";
         public static void reset() {
             if (instance != null) {
                 instance.containing.Visible = true;
@@ -18,6 +19,7 @@ namespace Celeste.Mod.MadelineCrystal {
                 Audio.Play("event:/kyfexuwu/MadelineCrystal/from_crystal");
                 instance.removeAnim = instance.sprite.PlayRoutine("shatter");
                 instance.dead = true;
+                instance.Level.Session.SetFlag(isCrystalFlag, false);
             }
             instance = null;
             isCrystal = false;
@@ -46,6 +48,8 @@ namespace Celeste.Mod.MadelineCrystal {
             this.containing.Speed = Vector2.Zero;
             this.containing.Collidable = false;
             this.containing.ForceCameraUpdate = true;
+
+            this.Level.Session.SetFlag(isCrystalFlag, true);
 
             Audio.Play("event:/kyfexuwu/MadelineCrystal/to_crystal");
             this.sprite.Play("form");
