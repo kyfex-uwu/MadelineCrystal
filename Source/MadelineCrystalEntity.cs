@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace Celeste.Mod.MadelineCrystal {
     public class MadelineCrystalEntity : TheoCrystal {
-        public static bool isCrystal {  get; private set; }
+        public static bool isCrystal {  get; private set; }//todo: make this a flag also
         public static void reset() {
             if (instance != null) {
                 instance.containing.Visible = true;

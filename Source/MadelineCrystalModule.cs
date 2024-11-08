@@ -32,10 +32,12 @@ public class MadelineCrystalModule : EverestModule {
         if (!evenIfInvincible && MadelineCrystalEntity.instance != null && self == MadelineCrystalEntity.instance.containing) return null;
 
         MadelineCrystalEntity.reset();
+        CrystalRefill.reset();
         return orig(self, direction, evenIfInvincible, registerDeathInStats);
     }
     private static void resetCrystal2(On.Celeste.Player.orig_Added orig, Player self, Scene scene) {
         MadelineCrystalEntity.reset();
+        CrystalRefill.reset();
         orig(self, scene);
     }
     private static bool disableIfCrystal(On.Celeste.PlayerCollider.orig_Check orig, PlayerCollider self, Player player) {
@@ -57,6 +59,8 @@ public class MadelineCrystalModule : EverestModule {
         On.Celeste.PlayerCollider.Check += disableIfCrystal;
 
         On.Celeste.TheoCrystal.Die += mCrystalDie;
+
+        CrystalRefill.enableHooks();
     }
 
     public override void Unload() {
@@ -66,5 +70,7 @@ public class MadelineCrystalModule : EverestModule {
         On.Celeste.PlayerCollider.Check -= disableIfCrystal;
 
         On.Celeste.TheoCrystal.Die -= mCrystalDie;
+
+        CrystalRefill.disableHooks();
     }
 }
