@@ -12,7 +12,7 @@
         <Loop id="crystalOffLoop" path="switch" frames="14" delay="0.08"/>
     </MadelineCrystal.MCrystalSwitcher>
     <MadelineCrystal.crystal path="objects/MadelineCrystal/crystal/" start="idle">
-        <Origin x="16" y="27"/>
+        <Origin x="16" y="26"/>
         <Loop id="idle" path="idle" delay="0.08"/>
 
         <Anim id="shatter" path="shatter" delay="0.0"/>
