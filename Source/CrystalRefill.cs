@@ -19,9 +19,9 @@ namespace Celeste.Mod.MadelineCrystal {
                 Color2 = c2
             };
         }
-        private static readonly ParticleType shatter = particle(P_Shatter, new Color(), new Color());
-        private static readonly ParticleType regen = particle(P_Regen, new Color(), new Color());
-        private static readonly ParticleType glow = particle(P_Glow, new Color(), new Color());
+        private static readonly ParticleType shatter = particle(P_Shatter, new Color(203, 219, 252), new Color(99, 155, 255));
+        private static readonly ParticleType regen = particle(P_Regen, new Color(99, 155, 255), new Color(91, 110, 225));
+        private static readonly ParticleType glow = particle(P_Glow, new Color(99,155,255), new Color(91,110,225));
         private static string setGraphics(Refill self, string defaultStr) {
             if (!(self is CrystalRefill)) return defaultStr;
 
