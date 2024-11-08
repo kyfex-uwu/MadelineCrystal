@@ -13,13 +13,21 @@ namespace Celeste.Mod.MadelineCrystal {
 
         }
 
+        private static ParticleType particle(ParticleType blueprint, Color c1, Color c2) {
+            return new ParticleType(blueprint) {
+                Color = c1,
+                Color2 = c2
+            };
+        }
+        private static readonly ParticleType shatter = particle(P_Shatter, new Color(), new Color());
+        private static readonly ParticleType regen = particle(P_Regen, new Color(), new Color());
+        private static readonly ParticleType glow = particle(P_Glow, new Color(), new Color());
         private static string setGraphics(Refill self, string defaultStr) {
             if (!(self is CrystalRefill)) return defaultStr;
 
-            //TODO
-            self.p_shatter = P_Shatter;
-            self.p_regen = P_Regen;
-            self.p_glow = P_Glow;
+            self.p_shatter = shatter;
+            self.p_regen = regen;
+            self.p_glow = glow;
             return "objects/MadelineCrystal/refill/";
         }
         private static void ctorCrystal(ILContext il) {
@@ -57,7 +65,7 @@ namespace Celeste.Mod.MadelineCrystal {
         private static void addCrystalDashListener(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
             orig(self, position, spriteMode);
             self.Add(new DashListener((Vector2) => {
-                if (shouldCrystalOnDash) MCrystalSwitcher.setCrystal(self, true);
+                if (shouldCrystalOnDash||MadelineCrystalModule.Session.shouldAlwaysCrystalOnDash) MCrystalSwitcher.setCrystal(self, true);
             }));
         }
 
