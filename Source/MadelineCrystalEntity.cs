@@ -2,26 +2,29 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
-using System.ComponentModel;
+using System.Collections;
 
 namespace Celeste.Mod.MadelineCrystal {
     public class MadelineCrystalEntity : TheoCrystal {
         public static bool isCrystal {  get; private set; }
         public static void reset() {
             if (instance != null) {
-                instance.Level.Remove(instance);
                 instance.containing.Visible = true;
                 instance.containing.StateMachine.State = 0;
                 instance.containing.Speed = instance.Speed;
                 instance.containing.Collidable = true;
                 instance.containing.dashRefillCooldownTimer = 0;
                 instance.containing.ForceCameraUpdate = false;
+                Audio.Play("event:/kyfexuwu/MadelineCrystal/from_crystal");
+                instance.removeAnim = instance.sprite.PlayRoutine("shatter");
+                instance.dead = true;
             }
             instance = null;
             isCrystal = false;
         }
         public readonly Player containing;
         public static MadelineCrystalEntity instance { get; private set; }
+        private static Color shatterColor = Color.Transparent;
         public MadelineCrystalEntity(Vector2 position, Player containing) : base(position) {
             this.Remove(this.sprite);
             this.Add(this.sprite = GFX.SpriteBank.Create("MadelineCrystal.crystal"));
@@ -43,14 +46,32 @@ namespace Celeste.Mod.MadelineCrystal {
             this.containing.Speed = Vector2.Zero;
             this.containing.Collidable = false;
             this.containing.ForceCameraUpdate = true;
+
+            Audio.Play("event:/kyfexuwu/MadelineCrystal/to_crystal");
+            this.sprite.Play("form");
+
+            if (shatterColor == Color.Transparent) { try {
+                int colorInt;
+                int.TryParse(this.sprite.Animations["burstColor"].Goto.choices[0].Value, System.Globalization.NumberStyles.HexNumber, null, out colorInt);
+                shatterColor = new Color(colorInt >> 16, colorInt >> 8 & 0x00ff, colorInt & 0x0000ff);
+            } catch (Exception) {} }
         }
 
+        private IEnumerator removeAnim; 
         public override void Update() {
-            if (this.Level.Transitioning) {
+            if (this.Level.Transitioning&&!this.dead) {
                 this.Position = this.containing.Position;
                 return;
             }
             base.Update();
+            if (this.removeAnim != null && !this.removeAnim.MoveNext()) {
+                CrystalDebris.Burst(Position, shatterColor, false, 16);
+                this.RemoveSelf();
+            }
+            if (this.dead) {
+                this.Hold.cannotHoldTimer = 621;
+                return;
+            }
             this.containing.Position = this.Position;
             this.Level.EnforceBounds(this.containing);
             this.Position = this.containing.Position;
@@ -60,12 +81,9 @@ namespace Celeste.Mod.MadelineCrystal {
             if (!dead) {
                 dead = true;
                 this.containing.Die(-Vector2.UnitX * Math.Abs(this.Speed.X));
-                this.containing.Visible = true;
-                this.containing.StateMachine.State = 0;
                 Audio.Play("event:/char/madeline/death", Position);
-                sprite.Visible = false;
-                base.Depth = -1000000;
                 AllowPushing = false;
+                reset();
             }
         }
     }

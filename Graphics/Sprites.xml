@@ -4,20 +4,21 @@
         <Center/>
         <Anim id="toNormal" path="switch" frames="10-1" delay="0.08" goto="normalLoop"/>
         <Loop id="normalLoop" path="switch" frames="1" delay="0.08"/>
-        <Anim id="toNormalOff" path="switch" frames="10-1,15-16" delay="0.08"/>
+        <Anim id="toNormalOff" path="switch" frames="10-1,15-16" delay="0.08" goto="normalOffLoop"/>
         <Loop id="normalOffLoop" path="switch" frames="16" delay="0.08"/>
         <Anim id="toCrystal" path="switch" frames="2-12" delay="0.08" goto="crystalLoop"/>
         <Loop id="crystalLoop" path="switch" frames="12" delay="0.08"/>
-        <Anim id="toCrystalOff" path="switch" frames="2-14" delay="0.08"/>
+        <Anim id="toCrystalOff" path="switch" frames="2-14" delay="0.08" goto="crystalOffLoop"/>
         <Loop id="crystalOffLoop" path="switch" frames="14" delay="0.08"/>
     </MadelineCrystal.MCrystalSwitcher>
     <MadelineCrystal.crystal path="objects/MadelineCrystal/crystal/" start="idle">
         <Origin x="16" y="27"/>
         <Loop id="idle" path="idle" delay="0.08"/>
 
-        <!--unused-->
-        <Anim id="shatter" path="shatter" delay="0.08" goto="shattered"/>
-        <Loop id="shattered" path="shatter" frames="16" delay="0.08"/>
+        <Anim id="shatter" path="shatter" delay="0.0"/>
+        <Anim id="form" path="form" delay="0.08" goto="idle"/>
+
+        <Anim id="burstColor" goto="cbdbfc"/>
     </MadelineCrystal.crystal>
 
 </Sprites>

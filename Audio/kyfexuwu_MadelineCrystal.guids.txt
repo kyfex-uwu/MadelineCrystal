@@ -890,7 +890,6 @@
 {d001d4bf-94bd-4842-bd12-c8d07686ecf3} bus:/gameplay_sfx/game/general/yes_pause/secret_revealed
 {ad993587-e7fc-427f-95b0-3a8204f772a7} bus:/gameplay_sfx/game/general/yes_pause/strawberry_pulse
 {ab63552e-0d56-46cb-82f3-277df8c07c7b} bus:/gameplay_sfx/game/glitches
-{ba9ad0d4-9125-4e6a-948a-21f85e64d895} bus:/gameplay_sfx/game/kyfexuwu_MadelineCrystal
 {cf6c699a-44d0-402c-ae02-e2e0a46cb94a} bus:/gameplay_sfx/golden_room_flavour
 {eb29e2c4-d8fe-47ed-9d8a-490d0c656466} bus:/gameplay_sfx/granny_clouds_dialogue
 {9bebdba3-d621-4355-9273-df3368b27182} bus:/gameplay_sfx/kevinpc_verb
