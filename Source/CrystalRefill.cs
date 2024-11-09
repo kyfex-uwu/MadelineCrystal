@@ -51,7 +51,7 @@ namespace Celeste.Mod.MadelineCrystal {
                 return;
             }
 
-            if (!MadelineCrystalEntity.isCrystal) {
+            if (!MadelineCrystalEntity.isCrystal&&!shouldCrystalOnDash) {
                 if (player.Dashes < player.MaxDashes) player.Dashes = player.MaxDashes;
                 Audio.Play("event:/game/general/diamond_touch", self.Position);
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
