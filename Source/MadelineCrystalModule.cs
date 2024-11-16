@@ -61,6 +61,7 @@ public class MadelineCrystalModule : EverestModule {
         On.Celeste.TheoCrystal.Die += mCrystalDie;
 
         CrystalRefill.enableHooks();
+        MadelineCrystalEntity.enableHooks();
     }
 
     public override void Unload() {
@@ -72,5 +73,6 @@ public class MadelineCrystalModule : EverestModule {
         On.Celeste.TheoCrystal.Die -= mCrystalDie;
 
         CrystalRefill.disableHooks();
+        MadelineCrystalEntity.disableHooks();
     }
 }

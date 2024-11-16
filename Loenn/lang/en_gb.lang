@@ -6,3 +6,4 @@ entities.MadelineCrystal/CrystalRefill.placements.name.refill=Crystal Refill
 triggers.MadelineCrystal/SetCrystalTrigger.placements.name.incrystal=Set In-Crystal Trigger
 triggers.MadelineCrystal/CrystalZoneTrigger.placements.name.zone=Crystal Zone Trigger
 triggers.MadelineCrystal/CrystalInventoryTrigger.placements.name.inv=Crystal Pseudo-Inventory Trigger
+triggers.MadelineCrystal/KillIfCrystalTrigger.placements.name.zone=Kill When Crystal Trigger
