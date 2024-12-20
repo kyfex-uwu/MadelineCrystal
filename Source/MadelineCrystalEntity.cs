@@ -9,6 +9,7 @@ using Monocle;
 using MonoMod.Cil;
 using System;
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.MadelineCrystal {
     public class MadelineCrystalEntity : TheoCrystal {
@@ -84,6 +85,8 @@ namespace Celeste.Mod.MadelineCrystal {
                 this.containing.Speed = Vector2.Zero;
             }
             base.Update();
+            if (this.Speed.X != 0)
+                this.containing.Facing = this.Speed.X < 0 ? Facings.Left : Facings.Right;
             if (this.removeAnim != null && !this.removeAnim.MoveNext()) {
                 CrystalDebris.Burst(Position, shatterColor, false, 16);
                 this.RemoveSelf();
