@@ -1,4 +1,7 @@
 ﻿using Celeste;
+using Celeste.Mod.CelesteNet;
+using Celeste.Mod.CelesteNet.Client;
+using Celeste.Mod.CelesteNet.DataTypes;
 using IL.MonoMod;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
@@ -26,6 +29,8 @@ namespace Celeste.Mod.MadelineCrystal {
             }
             instance = null;
             isCrystal = false;
+
+            SendCrystalUpdate(false);
         }
         public readonly Player containing;
         public static MadelineCrystalEntity instance { get; private set; }
@@ -53,6 +58,7 @@ namespace Celeste.Mod.MadelineCrystal {
             this.containing.ForceCameraUpdate = true;
 
             this.Level.Session.SetFlag(isCrystalFlag, true);
+            SendCrystalUpdate(true);
 
             Audio.Play("event:/kyfexuwu/MadelineCrystal/to_crystal");
             this.sprite.Play("form");
@@ -94,10 +100,11 @@ namespace Celeste.Mod.MadelineCrystal {
         public void overrideDie() {
             if (!dead) {
                 dead = true;
-                this.containing.Die(-Vector2.UnitX * Math.Abs(this.Speed.X));
                 Audio.Play("event:/char/madeline/death", Position);
                 AllowPushing = false;
                 reset();
+                this.containing.Die(-Vector2.UnitX * Math.Abs(this.Speed.X));
+                Logger.Log("mcrystal", "hi");
             }
         }
 
@@ -159,6 +166,17 @@ namespace Celeste.Mod.MadelineCrystal {
         }
         public static void disableHooks() {
             IL.Celeste.TheoCrystal.Update -= allowUpTransition;
+        }
+
+        //--
+
+        private static void SendCrystalUpdate(bool isCrystal) {
+            if (MadelineCrystalModule.hasCelesteNet) realSCR(isCrystal);
+        }
+        private static void realSCR(bool hehe) {
+            CelesteNetClientModule.Instance.Client?.Send(new CrystalStateData {
+                isCrystal = isCrystal
+            });
         }
     }
 }

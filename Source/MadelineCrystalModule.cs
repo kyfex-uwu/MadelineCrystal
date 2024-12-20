@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.CelesteNet.Client;
+using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Cil;
 using System;
@@ -52,6 +53,34 @@ public class MadelineCrystalModule : EverestModule {
         }
     }
 
+    [Command("crystalstate", "Puts the player into a crystal, or takes the player out of it. Modes: swap, crystal, none")]
+    private static void SetCrystalState(string mode = "swap") {
+        var scene = Celeste.Instance.scene;
+        if (scene is not Level level) return;
+        var player = level.Tracker.GetEntity<Player>();
+        if (player != null){
+            switch (mode) {
+                case "swap":
+                    Engine.Commands.Log($"Swapping {(MadelineCrystalEntity.isCrystal ? "from" : "to")} crystal");
+                    MCrystalSwitcher.setCrystal(player, !MadelineCrystalEntity.isCrystal);
+                    return;
+                case "crystal":
+                    Engine.Commands.Log("Switching to crystal");
+                    MCrystalSwitcher.setCrystal(player, true);
+                    return;
+                case "none":
+                    Engine.Commands.Log("Switching from crystal");
+                    MCrystalSwitcher.setCrystal(player, false);
+                    return;
+                default:
+                    Engine.Commands.Log("Modes: swap, crystal, none");
+                    return;
+            }
+        }
+        Engine.Commands.Log("No Player found");
+    }
+
+
     public override void Load() {
         On.Celeste.Player.Added += resetCrystal2;
         On.Celeste.Player.Die += resetCrystal;
@@ -74,5 +103,12 @@ public class MadelineCrystalModule : EverestModule {
 
         CrystalRefill.disableHooks();
         MadelineCrystalEntity.disableHooks();
+    }
+
+    //hi brokemia helper
+    private static EverestModuleMetadata celesteNetDependency = new EverestModuleMetadata { Name = "CelesteNet.Client", Version = new Version(2, 4, 1) };
+    public static readonly bool hasCelesteNet = Everest.Loader.DependencyLoaded(celesteNetDependency);
+    public static bool CelesteNetConnected() {
+        return hasCelesteNet && CelesteNetClientModule.Instance?.Client?.Con != null;
     }
 }
