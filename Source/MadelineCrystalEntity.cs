@@ -103,8 +103,7 @@ namespace Celeste.Mod.MadelineCrystal {
                 Audio.Play("event:/char/madeline/death", Position);
                 AllowPushing = false;
                 reset();
-                this.containing.Die(-Vector2.UnitX * Math.Abs(this.Speed.X));
-                Logger.Log("mcrystal", "hi");
+                this.containing.Die(this.Speed);
             }
         }
 
