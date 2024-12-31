@@ -9,42 +9,48 @@ using Monocle;
 using MonoMod.Cil;
 using System;
 using System.Collections;
-using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.MadelineCrystal {
     public class MadelineCrystalEntity : TheoCrystal {
-        public static bool isCrystal {  get; private set; }//todo: make this a flag also
+        public static bool isCrystal {  get; private set; }
         public static readonly string isCrystalFlag = "MadelineCrystalHelper/isCrystal";
-        public static void reset() {
-            if (instance != null) {
-                instance.containing.Visible = true;
-                instance.containing.StateMachine.State = 0;
-                instance.containing.Speed = instance.Speed;
-                instance.containing.Collidable = true;
-                instance.containing.dashRefillCooldownTimer = 0;
-                instance.containing.ForceCameraUpdate = false;
+        public static void reset() { reset(instance); }
+        public static void reset(MadelineCrystalEntity toReset) {
+            if (toReset != null) {
+                toReset.containing.Visible = true;
+                toReset.containing.StateMachine.State = 0;
+                toReset.containing.Speed = toReset.Speed;
+                toReset.containing.Collidable = true;
+                toReset.containing.dashRefillCooldownTimer = 0;
+                toReset.containing.ForceCameraUpdate = false;
                 Audio.Play("event:/kyfexuwu/MadelineCrystal/from_crystal");
-                instance.removeAnim = instance.sprite.PlayRoutine("shatter");
-                instance.dead = true;
-                instance.Level.Session.SetFlag(isCrystalFlag, false);
+                toReset.removeAnim = toReset.sprite.PlayRoutine("shatter");
+                toReset.dead = true;
+                toReset.Level.Session.SetFlag(isCrystalFlag, false);
             }
-            instance = null;
-            isCrystal = false;
 
-            SendCrystalUpdate(false);
+            if (toReset == instance) {
+                instance = null;
+                isCrystal = false;
+
+                SendCrystalUpdate(false);
+            }
         }
         public readonly Player containing;
         public static MadelineCrystalEntity instance { get; private set; }
         private static Color shatterColor = Color.Transparent;
-        public MadelineCrystalEntity(Vector2 position, Player containing) : base(position) {
+        private static readonly Hashtable playerToCrystal = new Hashtable();
+        public MadelineCrystalEntity(Vector2 position, Player containing, bool isMain=true) : base(position) {
             this.Remove(this.sprite);
             this.Add(this.sprite = GFX.SpriteBank.Create("MadelineCrystal.crystal"));
             this.AddTag(Tags.Persistent);
 
-            isCrystal = true;
-            this.containing = containing;
-            instance = this;
+            if (isMain) {
+                isCrystal = true;
+                instance = this;
+            }
 
+            this.containing = containing;
             this.Speed = containing.Speed;
         }
         public override void Added(Scene scene) {
@@ -105,7 +111,7 @@ namespace Celeste.Mod.MadelineCrystal {
                 dead = true;
                 Audio.Play("event:/char/madeline/death", Position);
                 AllowPushing = false;
-                reset();
+                reset(this);
                 this.containing.Die(this.Speed);
             }
         }

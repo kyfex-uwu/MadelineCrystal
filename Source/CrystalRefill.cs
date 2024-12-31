@@ -65,7 +65,10 @@ namespace Celeste.Mod.MadelineCrystal {
         private static void addCrystalDashListener(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
             orig(self, position, spriteMode);
             self.Add(new DashListener((Vector2) => {
-                if (shouldCrystalOnDash||MadelineCrystalModule.Session.shouldAlwaysCrystalOnDash) MCrystalSwitcher.setCrystal(self, true);
+                if (shouldCrystalOnDash || MadelineCrystalModule.Session.shouldAlwaysCrystalOnDash) {
+                    MCrystalSwitcher.setCrystal(self, true);
+                    reset();
+                }
             }));
         }
 

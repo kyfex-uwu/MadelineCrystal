@@ -1,5 +1,6 @@
 ﻿using Celeste.Mod.CelesteNet.DataTypes;
 using Celeste.Mod.CelesteNet;
+using System;
 
 namespace Celeste.Mod.MadelineCrystal {
     public class CrystalStateData : DataType<CrystalStateData> {
@@ -9,6 +10,7 @@ namespace Celeste.Mod.MadelineCrystal {
 
         public DataPlayerInfo Player;
         public bool isCrystal;
+        public DateTime timestamp;
 
         public override MetaType[] GenerateMeta(DataContext ctx) => new MetaType[] {
                 new MetaPlayerUpdate(Player)
@@ -20,10 +22,12 @@ namespace Celeste.Mod.MadelineCrystal {
 
         protected override void Read(CelesteNetBinaryReader reader) {
             isCrystal = reader.ReadBoolean();
+            timestamp = reader.ReadDateTime();
         }
 
         protected override void Write(CelesteNetBinaryWriter writer) {
             writer.Write(isCrystal);
+            writer.Write(timestamp);
         }
 
     }
