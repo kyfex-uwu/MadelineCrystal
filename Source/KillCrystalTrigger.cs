@@ -1,10 +1,5 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Celeste.Mod.MadelineCrystal {
     [CustomEntity("MadelineCrystal/KillIfCrystalTrigger")]
@@ -13,7 +8,8 @@ namespace Celeste.Mod.MadelineCrystal {
         }
         public override void OnEnter(Player player) {
             base.OnEnter(player);
-            if (MadelineCrystalEntity.isCrystal) MadelineCrystalEntity.instance.Die();
+            if (MadelineCrystalModule.isCrystal(player)) 
+                MadelineCrystalEntity.crystalFromPlayer[player].Die();
         }
     }
 }

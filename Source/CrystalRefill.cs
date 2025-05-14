@@ -3,15 +3,15 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Cil;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Celeste.Mod.MadelineCrystal {
     [Tracked(true), CustomEntity("MadelineCrystal/CrystalRefill")]
     public class CrystalRefill : Refill {
         public CrystalRefill(EntityData data, Vector2 offset) : this(data.Position + offset, data.Bool("oneUse")) {
         }
-        public CrystalRefill(Vector2 position, bool oneUse) : base(position, false, oneUse) {
-
-        }
+        public CrystalRefill(Vector2 position, bool oneUse) : base(position, false, oneUse) { }
 
         private static ParticleType particle(ParticleType blueprint, Color c1, Color c2) {
             return new ParticleType(blueprint) {
@@ -43,31 +43,32 @@ namespace Celeste.Mod.MadelineCrystal {
             cursor.EmitDelegate(setGraphics);
             cursor.EmitStloc0();
         }
-        public static bool shouldCrystalOnDash { get; private set; } = false;
-        public static void reset() { shouldCrystalOnDash = false;  }
+
+        public static readonly HashSet<Player> shouldCrystalOnDash = new();
         private static void onPlayer(On.Celeste.Refill.orig_OnPlayer orig, Refill self, Player player) {
             if(!(self is CrystalRefill)) {
                 orig(self, player);
                 return;
             }
-
-            if (!MadelineCrystalEntity.isCrystal&&!shouldCrystalOnDash) {
+            
+            if (!shouldCrystalOnDash.Contains(player)) {
                 if (player.Dashes < player.MaxDashes) player.Dashes = player.MaxDashes;
                 Audio.Play("event:/game/general/diamond_touch", self.Position);
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
                 self.Collidable = false;
                 self.Add(new Coroutine(self.RefillRoutine(player)));
                 self.respawnTimer = 2.5f;
-                shouldCrystalOnDash = true;
+
+                shouldCrystalOnDash.Add(player);
             }
         }
 
         private static void addCrystalDashListener(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
             orig(self, position, spriteMode);
-            self.Add(new DashListener((Vector2) => {
-                if (shouldCrystalOnDash || MadelineCrystalModule.Session.shouldAlwaysCrystalOnDash) {
+            self.Add(new DashListener((vector) => {
+                if (shouldCrystalOnDash.Contains(self) || MadelineCrystalModule.Session.shouldAlwaysCrystalOnDash) {
                     MCrystalSwitcher.setCrystal(self, true);
-                    reset();
+                    shouldCrystalOnDash.Remove(self);
                 }
             }));
         }

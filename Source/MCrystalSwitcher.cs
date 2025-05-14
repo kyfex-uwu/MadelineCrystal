@@ -8,10 +8,8 @@ namespace Celeste.Mod.MadelineCrystal {
     public class MCrystalSwitcher : Entity {
         public readonly bool toCrystal;
         public readonly bool fromCrystal;
-        private bool Usable {
-            get {
-                return MadelineCrystalEntity.isCrystal ? this.fromCrystal : this.toCrystal;
-            }
+        private bool Usable(Player player) {
+            return MadelineCrystalModule.isCrystal(player) ? this.fromCrystal : this.toCrystal;
         }
         private bool playSounds=false;
         private float cooldownTimer=0f;
@@ -32,39 +30,47 @@ namespace Celeste.Mod.MadelineCrystal {
 
         public override void Added(Scene scene) {
             base.Added(scene);
+            this.needToUpdate = true;
             UpdateSprite(false);
         }
 
+        private bool needToUpdate = false;
         public void UpdateSprite(bool animate) {
+            var player = this.Scene.Tracker.GetEntity<Player>();
+            if (player == null) return;
+            
+            var isCrystal = MadelineCrystalModule.isCrystal(player);
             if (animate) {
                 if (playSounds) {
-                    Audio.Play(MadelineCrystalEntity.isCrystal ? "event:/kyfexuwu/MadelineCrystal/switch_to_crystal" : "event:/kyfexuwu/MadelineCrystal/switch_from_crystal", this.Position);
+                    Audio.Play(isCrystal ? "event:/kyfexuwu/MadelineCrystal/switch_to_crystal" : "event:/kyfexuwu/MadelineCrystal/switch_from_crystal", this.Position);
                 }
 
-                if (Usable) {
-                    sprite.Play(MadelineCrystalEntity.isCrystal ? "toCrystal" : "toNormal");
+                if (Usable(player)) {
+                    sprite.Play(isCrystal ? "toCrystal" : "toNormal");
                 } else {
                     if (playSounds) {
                         Audio.Play("event:/game/09_core/switch_dies", this.Position);
                     }
 
-                    sprite.Play(MadelineCrystalEntity.isCrystal ? "toCrystalOff" : "toNormalOff");
+                    sprite.Play(isCrystal ? "toCrystalOff" : "toNormalOff");
                 }
-            } else if (Usable) {
-                sprite.Play(MadelineCrystalEntity.isCrystal ? "crystalLoop" : "normalLoop");
+            } else if (Usable(player)) {
+                sprite.Play(isCrystal ? "crystalLoop" : "normalLoop");
             } else {
-                sprite.Play(MadelineCrystalEntity.isCrystal ? "crystalOffLoop" : "normalOffLoop");
+                sprite.Play(isCrystal ? "crystalOffLoop" : "normalOffLoop");
             }
 
             playSounds = false;
+            needToUpdate = false;
         }
 
-        public void OnCollide(object doesntMatter) {
-            if (Usable && cooldownTimer <= 0f) {
+        public void OnCollide(object collided) {
+            var player = this.SceneAs<Level>().Tracker.GetEntity<Player>();
+            if (player == null) return;//todo
+            
+            if (Usable(player) && cooldownTimer <= 0f) {
                 this.playSounds = true;
-                var player = this.SceneAs<Level>().Tracker.GetEntity<Player>();
-                if (player == null) return;//todo
-                setCrystal(player, !MadelineCrystalEntity.isCrystal);
+                setCrystal(player, !MadelineCrystalModule.isCrystal(player));
 
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
                 player.level.Flash(Color.White * 0.15f, drawPlayerOver: true);
@@ -77,11 +83,11 @@ namespace Celeste.Mod.MadelineCrystal {
         }
 
         public static void setCrystal(Player player, bool inCrystal) {
-            if (inCrystal == MadelineCrystalEntity.isCrystal) return;
+            if (inCrystal == MadelineCrystalModule.isCrystal(player)) return;
             if (player.level == null) return;//this fixes a bug but it makes me uncomfy
 
-            if (MadelineCrystalEntity.isCrystal) {
-                MadelineCrystalEntity.reset();
+            if (MadelineCrystalModule.isCrystal(player)) {
+                MadelineCrystalEntity.reset(player);
             } else {
                 player.level.Add(new MadelineCrystalEntity(player.Position + player.Collider.BottomCenter, player));
             }
@@ -95,6 +101,7 @@ namespace Celeste.Mod.MadelineCrystal {
             if (cooldownTimer > 0f) {
                 cooldownTimer -= Engine.DeltaTime;
             }
+            if(needToUpdate) UpdateSprite(true);
         }
     }
 }

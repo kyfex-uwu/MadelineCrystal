@@ -1,11 +1,5 @@
 ﻿using Celeste.Mod.Entities;
-using IL.Celeste;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Celeste.Mod.MadelineCrystal {
     [CustomEntity("MadelineCrystal/CrystalZoneTrigger")]

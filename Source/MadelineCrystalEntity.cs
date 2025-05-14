@@ -1,20 +1,20 @@
-﻿using Celeste;
-using Celeste.Mod.CelesteNet;
-using Celeste.Mod.CelesteNet.Client;
-using Celeste.Mod.CelesteNet.DataTypes;
-using IL.MonoMod;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Celeste.Mod.MadelineCrystal {
     public class MadelineCrystalEntity : TheoCrystal {
-        public static bool isCrystal {  get; private set; }
         public static readonly string isCrystalFlag = "MadelineCrystalHelper/isCrystal";
-        public static void reset() { reset(instance); }
+        public static readonly Dictionary<MadelineCrystalEntity, Player> playerFromCrystal = new();
+        public static readonly Dictionary<Player, MadelineCrystalEntity> crystalFromPlayer = new();
+
+        public static void reset(Player player) {
+            if(MadelineCrystalModule.isCrystal(player)) reset(crystalFromPlayer[player]);
+        }
         public static void reset(MadelineCrystalEntity toReset) {
             if (toReset != null) {
                 toReset.containing.Visible = true;
@@ -26,29 +26,26 @@ namespace Celeste.Mod.MadelineCrystal {
                 Audio.Play("event:/kyfexuwu/MadelineCrystal/from_crystal");
                 toReset.removeAnim = toReset.sprite.PlayRoutine("shatter");
                 toReset.dead = true;
-                toReset.Level.Session.SetFlag(isCrystalFlag, false);
+                playerFromCrystal.Remove(toReset);
+                crystalFromPlayer.Remove(toReset.containing);
+                if(playerFromCrystal.Keys.Count == 0)
+                    toReset.Level.Session.SetFlag(isCrystalFlag, false);
             }
+        }
 
-            if (toReset == instance) {
-                instance = null;
-                isCrystal = false;
-
-                SendCrystalUpdate(false);
+        public static void ResetAll() {
+            foreach (var crystal in crystalFromPlayer) {
+                reset(crystal.Value);
             }
         }
         public readonly Player containing;
-        public static MadelineCrystalEntity instance { get; private set; }
         private static Color shatterColor = Color.Transparent;
-        private static readonly Hashtable playerToCrystal = new Hashtable();
-        public MadelineCrystalEntity(Vector2 position, Player containing, bool isMain=true) : base(position) {
+        public MadelineCrystalEntity(Vector2 position, Player containing) : base(position) {
             this.Remove(this.sprite);
             this.Add(this.sprite = GFX.SpriteBank.Create("MadelineCrystal.crystal"));
             this.AddTag(Tags.Persistent);
-
-            if (isMain) {
-                isCrystal = true;
-                instance = this;
-            }
+            playerFromCrystal[this] = containing;
+            crystalFromPlayer[containing] = this;
 
             this.containing = containing;
             this.Speed = containing.Speed;
@@ -179,12 +176,7 @@ namespace Celeste.Mod.MadelineCrystal {
         //--
 
         private static void SendCrystalUpdate(bool isCrystal) {
-            if (MadelineCrystalModule.hasCelesteNet) realSCR(isCrystal);
-        }
-        private static void realSCR(bool hehe) {
-            CelesteNetClientModule.Instance.Client?.Send(new CrystalStateData {
-                isCrystal = isCrystal
-            });
+            if (MadelineCrystalModule.hasCelesteNet) MiscStuff.realSCR(isCrystal);
         }
     }
 }

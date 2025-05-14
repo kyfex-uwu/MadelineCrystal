@@ -1,8 +1,7 @@
-﻿using Celeste.Mod.CelesteNet.Client;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Monocle;
-using MonoMod.Cil;
 using System;
+using MonoMod.Utils;
 
 namespace Celeste.Mod.MadelineCrystal;
 
@@ -29,20 +28,22 @@ public class MadelineCrystalModule : EverestModule {
 #endif
     }
 
-    private static PlayerDeadBody resetCrystal(On.Celeste.Player.orig_Die orig, Player self, Vector2 direction, bool evenIfInvincible, bool registerDeathInStats) {
-        if (!evenIfInvincible && MadelineCrystalEntity.instance != null && self == MadelineCrystalEntity.instance.containing) return null;
+    public static bool isCrystal(Player player) {
+        return MadelineCrystalEntity.crystalFromPlayer.TryGetValue(player, out var _);
+    }
 
-        MadelineCrystalEntity.reset();
-        CrystalRefill.reset();
+    private static PlayerDeadBody resetCrystal(On.Celeste.Player.orig_Die orig, Player self, Vector2 direction, bool evenIfInvincible, bool registerDeathInStats) {
+        if (!evenIfInvincible && isCrystal(self)) return null;
+
+        CrystalRefill.shouldCrystalOnDash.Remove(self);
         return orig(self, direction, evenIfInvincible, registerDeathInStats);
     }
-    private static void resetCrystal2(On.Celeste.Player.orig_Added orig, Player self, Scene scene) {
-        MadelineCrystalEntity.reset();
-        CrystalRefill.reset();
+    private static void onPlayerAdded(On.Celeste.Player.orig_Added orig, Player self, Scene scene) {
+        CrystalRefill.shouldCrystalOnDash.Clear();
         orig(self, scene);
     }
     private static bool disableIfCrystal(On.Celeste.PlayerCollider.orig_Check orig, PlayerCollider self, Player player) {
-        if (MadelineCrystalEntity.instance != null) return false;
+        if (isCrystal(player)) return false;
         return orig(self, player);
     }
     private static void mCrystalDie(On.Celeste.TheoCrystal.orig_Die orig, TheoCrystal self) {
@@ -61,8 +62,8 @@ public class MadelineCrystalModule : EverestModule {
         if (player != null){
             switch (mode) {
                 case "swap":
-                    Engine.Commands.Log($"Swapping {(MadelineCrystalEntity.isCrystal ? "from" : "to")} crystal");
-                    MCrystalSwitcher.setCrystal(player, !MadelineCrystalEntity.isCrystal);
+                    Engine.Commands.Log($"Swapping {(isCrystal(player) ? "from" : "to")} crystal");
+                    MCrystalSwitcher.setCrystal(player, !isCrystal(player));
                     return;
                 case "crystal":
                     Engine.Commands.Log("Switching to crystal");
@@ -82,7 +83,7 @@ public class MadelineCrystalModule : EverestModule {
 
 
     public override void Load() {
-        On.Celeste.Player.Added += resetCrystal2;
+        On.Celeste.Player.Added += onPlayerAdded;
         On.Celeste.Player.Die += resetCrystal;
 
         On.Celeste.PlayerCollider.Check += disableIfCrystal;
@@ -94,7 +95,7 @@ public class MadelineCrystalModule : EverestModule {
     }
 
     public override void Unload() {
-        On.Celeste.Player.Added -= resetCrystal2;
+        On.Celeste.Player.Added -= onPlayerAdded;
         On.Celeste.Player.Die -= resetCrystal;
 
         On.Celeste.PlayerCollider.Check -= disableIfCrystal;
@@ -109,6 +110,6 @@ public class MadelineCrystalModule : EverestModule {
     private static EverestModuleMetadata celesteNetDependency = new EverestModuleMetadata { Name = "CelesteNet.Client", Version = new Version(2, 4, 1) };
     public static readonly bool hasCelesteNet = Everest.Loader.DependencyLoaded(celesteNetDependency);
     public static bool CelesteNetConnected() {
-        return hasCelesteNet && CelesteNetClientModule.Instance?.Client?.Con != null;
+        return hasCelesteNet && MiscStuff.clientConnected();
     }
 }
