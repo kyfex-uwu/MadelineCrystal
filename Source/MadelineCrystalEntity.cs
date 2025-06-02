@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
 using System;
@@ -7,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.MadelineCrystal {
+    [TrackedAs(typeof(TheoCrystal))]
     public class MadelineCrystalEntity : TheoCrystal {
         public static readonly string isCrystalFlag = "MadelineCrystalHelper/isCrystal";
         public static readonly Dictionary<MadelineCrystalEntity, Player> playerFromCrystal = new();
