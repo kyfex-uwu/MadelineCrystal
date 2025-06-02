@@ -32,12 +32,7 @@ namespace Celeste.Mod.MadelineCrystal {
                     toReset.Level.Session.SetFlag(isCrystalFlag, false);
             }
         }
-
-        public static void ResetAll() {
-            foreach (var crystal in crystalFromPlayer) {
-                reset(crystal.Value);
-            }
-        }
+        
         public readonly Player containing;
         private static Color shatterColor = Color.Transparent;
         public MadelineCrystalEntity(Vector2 position, Player containing) : base(position) {
@@ -113,64 +108,42 @@ namespace Celeste.Mod.MadelineCrystal {
             }
         }
 
-        private static float AddMCrystalCheck(float f1, float f2, TheoCrystal self) {
-            return (f1 < (f2+4) && !(self is MadelineCrystalEntity)) ? -1 : 1;//why +4? i think i am not doing what i think i am doing. skill issue
+        private static bool isCrystal(TheoCrystal self) {
+            return self is MadelineCrystalEntity;
         }
-        private static void allowUpTransition(ILContext il) {
+        private static void allowTransitions(ILContext il) {
             var cursor = new ILCursor(il);
 
-            /*
-            IL_03d9: ldarg.0
-	        IL_03da: call instance float32 Monocle.Entity::get_Top()
-	        IL_03df: ldarg.0
-	        IL_03e0: ldfld class Celeste.Level Celeste.TheoCrystal::Level
-	        IL_03e5: callvirt instance valuetype [FNA]Microsoft.Xna.Framework.Rectangle Celeste.Level::get_Bounds()
-	        IL_03ea: stloc.s 4
-	        IL_03ec: ldloca.s 4
-	        IL_03ee: call instance int32 [FNA]Microsoft.Xna.Framework.Rectangle::get_Top()
-	        IL_03f3: ldc.i4.4
-	        IL_03f4: sub
-	        IL_03f5: conv.r4
-            <---
-	        IL_03f6: bge.un.s IL_042a
-             */
-
-            Func<Instruction, bool>[] matches = new Func<Instruction, bool>[] {
-                instr=>instr.MatchCall<Entity>("get_Top"),
-                instr=>true,
-                instr=>instr.MatchLdfld<TheoCrystal>("Level"),
-                instr=>instr.MatchCallvirt<Level>("get_Bounds"),
-                instr=>true,
-                instr=>true,
-                instr=>instr.MatchCall<Rectangle>("get_Top"),
-                instr=>true,
-                instr=>true,
-                instr=>true
-                // <-- if all these checks pass, the cursor is right after this last instruction (conv.r4)
-            };
-            cursor.GotoNext(MoveType.Before, instr => {//even though this is before, this bit of code will return true on the first instruction AFTER this section
-                var currInstr = instr;
-                foreach(var _ in matches) {
-                    if (currInstr.Previous != null)
-                        currInstr = currInstr.Previous;
-                    else return false;
-                }
-
-                foreach(var match in matches) {
-                    if (!match.Invoke(currInstr)) return false;
-                    currInstr = currInstr.Next;
-                }
-                return true;
-            });
+            ILLabel elseLabel=null;
+            cursor.GotoNext(MoveType.Before,
+                instr => instr.MatchCall<Entity>("set_Left"));
+            cursor.GotoPrev(MoveType.After,
+                instr => instr.MatchBgeUn(out elseLabel));
             cursor.EmitLdarg0();
-            cursor.EmitDelegate(AddMCrystalCheck);
-            cursor.EmitLdcR4(0);
+            cursor.EmitDelegate(isCrystal);
+            cursor.EmitBrtrue(elseLabel);
+            
+            cursor.GotoNext(MoveType.Before,
+                instr => instr.MatchCall<Entity>("set_Top"));
+            cursor.GotoPrev(MoveType.After,
+                instr => instr.MatchBgeUn(out elseLabel));
+            cursor.EmitLdarg0();
+            cursor.EmitDelegate(isCrystal);
+            cursor.EmitBrtrue(elseLabel);
+
+            //why does this exist?
+            cursor.GotoNext(instr => instr.MatchLdcR4(32f));
+            cursor.GotoPrev(MoveType.After,
+                instr => instr.MatchBgeUn(out elseLabel));
+            cursor.EmitLdarg0();
+            cursor.EmitDelegate(isCrystal);
+            cursor.EmitBrtrue(elseLabel);
         }
         public static void enableHooks() {
-            IL.Celeste.TheoCrystal.Update += allowUpTransition;
+            IL.Celeste.TheoCrystal.Update += allowTransitions;
         }
         public static void disableHooks() {
-            IL.Celeste.TheoCrystal.Update -= allowUpTransition;
+            IL.Celeste.TheoCrystal.Update -= allowTransitions;
         }
 
         //--

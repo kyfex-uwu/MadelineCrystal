@@ -8,23 +8,23 @@ namespace Celeste.Mod.MadelineCrystal;
 public class MadelineCrystalModule : EverestModule {
     public static MadelineCrystalModule Instance { get; private set; }
 
-    public override Type SettingsType => typeof(MadelineCrystalModuleSettings);
-    public static MadelineCrystalModuleSettings Settings => (MadelineCrystalModuleSettings) Instance._Settings;
+    // public override Type SettingsType => typeof(MadelineCrystalModuleSettings);
+    // public static MadelineCrystalModuleSettings Settings => (MadelineCrystalModuleSettings) Instance._Settings;
 
     public override Type SessionType => typeof(MadelineCrystalModuleSession);
     public static MadelineCrystalModuleSession Session => (MadelineCrystalModuleSession) Instance._Session;
-
-    public override Type SaveDataType => typeof(MadelineCrystalModuleSaveData);
-    public static MadelineCrystalModuleSaveData SaveData => (MadelineCrystalModuleSaveData) Instance._SaveData;
+    //
+    // public override Type SaveDataType => typeof(MadelineCrystalModuleSaveData);
+    // public static MadelineCrystalModuleSaveData SaveData => (MadelineCrystalModuleSaveData) Instance._SaveData;
 
     public MadelineCrystalModule() {
         Instance = this;
 #if DEBUG
         // debug builds use verbose logging
-        Logger.SetLogLevel(nameof(MadelineCrystalModule), LogLevel.Verbose);
+        Logger.SetLogLevel("MadelineCrystal", LogLevel.Verbose);
 #else
         // release builds use info logging to reduce spam in log files
-        Logger.SetLogLevel(nameof(MadelineCrystalModule), LogLevel.Info);
+        Logger.SetLogLevel("MadelineCrystal", LogLevel.Info);
 #endif
     }
 
@@ -38,6 +38,7 @@ public class MadelineCrystalModule : EverestModule {
         CrystalRefill.shouldCrystalOnDash.Remove(self);
         return orig(self, direction, evenIfInvincible, registerDeathInStats);
     }
+
     private static void onPlayerAdded(On.Celeste.Player.orig_Added orig, Player self, Scene scene) {
         CrystalRefill.shouldCrystalOnDash.Clear();
         orig(self, scene);
@@ -108,7 +109,9 @@ public class MadelineCrystalModule : EverestModule {
 
     //hi brokemia helper
     private static EverestModuleMetadata celesteNetDependency = new EverestModuleMetadata { Name = "CelesteNet.Client", Version = new Version(2, 4, 1) };
+    private static EverestModuleMetadata pandorasDependency = new EverestModuleMetadata { Name = "PandorasBox", Version = new Version(1, 0, 49) };
     public static readonly bool hasCelesteNet = Everest.Loader.DependencyLoaded(celesteNetDependency);
+    public static readonly bool hasPandoras = Everest.Loader.DependencyLoaded(pandorasDependency);
     public static bool CelesteNetConnected() {
         return hasCelesteNet && MiscStuff.clientConnected();
     }
