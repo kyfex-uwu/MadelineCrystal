@@ -139,11 +139,21 @@ namespace Celeste.Mod.MadelineCrystal {
             cursor.EmitDelegate(isCrystal);
             cursor.EmitBrtrue(elseLabel);
         }
+
+        private static void ignoreMadelineCrystal(On.Celeste.Level.orig_EnforceBounds orig, Level self, Player player) {
+            var old = self.Tracker.Entities[typeof(TheoCrystal)].FindAll(e => true);
+            self.Tracker.Entities[typeof(TheoCrystal)] = self.Tracker.Entities[typeof(TheoCrystal)].FindAll(
+                entity => !(entity is MadelineCrystalEntity));
+            orig(self, player);
+            self.Tracker.Entities[typeof(TheoCrystal)] = old;
+        }
         public static void enableHooks() {
             IL.Celeste.TheoCrystal.Update += allowTransitions;
+            On.Celeste.Level.EnforceBounds += ignoreMadelineCrystal;
         }
         public static void disableHooks() {
             IL.Celeste.TheoCrystal.Update -= allowTransitions;
+            On.Celeste.Level.EnforceBounds += ignoreMadelineCrystal;
         }
 
         //--
