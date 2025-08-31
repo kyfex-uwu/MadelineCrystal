@@ -30,12 +30,19 @@ namespace Celeste.Mod.MadelineCrystal {
                 crystalFromPlayer.Remove(toReset.containing);
                 if(playerFromCrystal.Keys.Count == 0)
                     toReset.Level.Session.SetFlag(isCrystalFlag, false);
+
+                if (toReset.legacyBehavior) {
+                    foreach (Player player in toReset.Scene.Tracker.GetEntities<Player>()) {
+                        player.Collidable = true;
+                    }
+                }
             }
         }
         
         public readonly Player containing;
         private static Color shatterColor = Color.Transparent;
-        public MadelineCrystalEntity(Vector2 position, Player containing) : base(position) {
+        public readonly bool legacyBehavior;
+        public MadelineCrystalEntity(Vector2 position, Player containing, bool legacy=false) : base(position) {
             this.Remove(this.sprite);
             this.Add(this.sprite = GFX.SpriteBank.Create("MadelineCrystal.crystal"));
             this.AddTag(Tags.Persistent);
@@ -44,6 +51,8 @@ namespace Celeste.Mod.MadelineCrystal {
 
             this.containing = containing;
             this.Speed = containing.Speed;
+
+            this.legacyBehavior = legacy;
         }
         public override void Added(Scene scene) {
             base.Added(scene);
@@ -55,6 +64,12 @@ namespace Celeste.Mod.MadelineCrystal {
             this.containing.Speed = Vector2.Zero;
             this.containing.Collidable = false;
             this.containing.ForceCameraUpdate = true;
+
+            if (this.legacyBehavior) {
+                foreach (Player player in scene.Tracker.GetEntities<Player>()) {
+                    player.Collidable = false;
+                }
+            }
 
             this.Level.Session.SetFlag(isCrystalFlag, true);
             SendCrystalUpdate(true);

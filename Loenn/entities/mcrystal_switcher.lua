@@ -15,6 +15,10 @@ local switcher = {
     fieldInformation={
         legacyMode={default=false}
     },
+    fieldOrder={
+        "toCrystal", "fromCrystal",
+        "legacyMode",
+    },
     depth=2000,
 
     selection=function(_,entity) 

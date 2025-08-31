@@ -46,7 +46,37 @@ namespace Celeste.Mod.MadelineCrystal {
             cursor.EmitStloc0();
         }
 
-        public static readonly HashSet<Player> shouldCrystalOnDash = new();
+        private static readonly HashSet<Player> shouldCrystalOnDash = new();
+        private static readonly HashSet<Player> shouldCrystalOnDashLegacy = new();
+
+        public static void setCrystalOnDash(Player player, bool should, bool legacy=false) {
+            if (legacy) {
+                shouldCrystalOnDash.Remove(player);
+                if (!should) shouldCrystalOnDashLegacy.Remove(player);
+                else shouldCrystalOnDashLegacy.Add(player);
+            }else{
+                shouldCrystalOnDashLegacy.Remove(player);
+                if (!should) shouldCrystalOnDash.Remove(player);
+                else shouldCrystalOnDash.Add(player);
+            }
+        }
+
+        public static void clearCrystalOnDash() {
+            shouldCrystalOnDash.Clear();
+            shouldCrystalOnDashLegacy.Clear();
+        }
+
+        public enum ShouldCrystalOnDashVal {
+            TRUE,
+            LEGACY,
+            FALSE
+        }
+
+        public static ShouldCrystalOnDashVal ShouldCrystalOnDash(Player player) {
+            if (shouldCrystalOnDash.Contains(player)) return ShouldCrystalOnDashVal.TRUE;
+            if (shouldCrystalOnDashLegacy.Contains(player)) return ShouldCrystalOnDashVal.LEGACY;
+            return ShouldCrystalOnDashVal.FALSE;
+        }
         private static void onPlayer(On.Celeste.Refill.orig_OnPlayer orig, Refill self, Player player) {
             if(!(self is CrystalRefill cRefill)) {
                 orig(self, player);
@@ -54,7 +84,7 @@ namespace Celeste.Mod.MadelineCrystal {
             }
 
             var targetedPlayer = cRefill.legacyMode ? self.Scene.Tracker.GetEntity<Player>() : player;
-            if (!shouldCrystalOnDash.Contains(targetedPlayer)) {
+            if (ShouldCrystalOnDash(targetedPlayer) == ShouldCrystalOnDashVal.FALSE) {
                 if (targetedPlayer.Dashes < targetedPlayer.MaxDashes) targetedPlayer.Dashes = targetedPlayer.MaxDashes;
                 Audio.Play("event:/game/general/diamond_touch", self.Position);
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
@@ -62,16 +92,17 @@ namespace Celeste.Mod.MadelineCrystal {
                 self.Add(new Coroutine(self.RefillRoutine(targetedPlayer)));
                 self.respawnTimer = 2.5f;
 
-                shouldCrystalOnDash.Add(targetedPlayer);
+                setCrystalOnDash(targetedPlayer, true, cRefill.legacyMode);
             }
         }
 
         private static void addCrystalDashListener(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
             orig(self, position, spriteMode);
             self.Add(new DashListener((vector) => {
-                if (shouldCrystalOnDash.Contains(self) || MadelineCrystalModule.Session.shouldAlwaysCrystalOnDash) {
-                    MCrystalSwitcher.setCrystal(self, true);
-                    shouldCrystalOnDash.Remove(self);
+                var should = ShouldCrystalOnDash(self);
+                if (should!=ShouldCrystalOnDashVal.FALSE || MadelineCrystalModule.Session.shouldAlwaysCrystalOnDash) {
+                    MCrystalSwitcher.setCrystal(self, true, should==ShouldCrystalOnDashVal.LEGACY);
+                    setCrystalOnDash(self,false);
                 }
             }));
         }

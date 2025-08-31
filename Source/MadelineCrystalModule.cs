@@ -35,15 +35,24 @@ public class MadelineCrystalModule : EverestModule {
     private static PlayerDeadBody resetCrystal(On.Celeste.Player.orig_Die orig, Player self, Vector2 direction, bool evenIfInvincible, bool registerDeathInStats) {
         if (!evenIfInvincible && isCrystal(self)) return null;
 
-        CrystalRefill.shouldCrystalOnDash.Remove(self);
+        CrystalRefill.setCrystalOnDash(self,false);
         return orig(self, direction, evenIfInvincible, registerDeathInStats);
     }
 
     private static void onPlayerAdded(On.Celeste.Player.orig_Added orig, Player self, Scene scene) {
-        CrystalRefill.shouldCrystalOnDash.Clear();
+        CrystalRefill.setCrystalOnDash(self,false);
         orig(self, scene);
     }
+
+    private static void clearCrystalling(On.Celeste.Player.orig_IntroRespawnBegin orig, Player self) {
+        orig(self);
+        CrystalRefill.clearCrystalOnDash();
+    }
     private static bool disableIfCrystal(On.Celeste.PlayerCollider.orig_Check orig, PlayerCollider self, Player player) {
+        foreach(TheoCrystal e in player.Scene.Tracker.GetEntities<TheoCrystal>()) {
+            if ((e is MadelineCrystalEntity m) && m.legacyBehavior) return false;
+        }
+        
         if (isCrystal(player) &&
             (!shouldReallyDisablePlayerCollision.TryGetValue(self.Entity.GetType(), out var func) ||
              func.Invoke(self))) return false;
@@ -55,6 +64,13 @@ public class MadelineCrystalModule : EverestModule {
         } else {
             orig(self);
         }
+    }
+
+    public static readonly Dictionary<Holdable, Player> holdingHoldable = new();
+    private static bool rememberHolder(On.Celeste.Holdable.orig_Pickup orig, Holdable self, Player player) {
+        var toReturn = orig(self, player);
+        if(toReturn) holdingHoldable[self] = player;
+        return toReturn;
     }
 
     [Command("crystalstate", "Puts the player into a crystal, or takes the player out of it. Modes: swap, crystal, none")]
@@ -95,11 +111,14 @@ public class MadelineCrystalModule : EverestModule {
 
     public override void Load() {
         On.Celeste.Player.Added += onPlayerAdded;
+        On.Celeste.Player.IntroRespawnBegin += clearCrystalling;
         On.Celeste.Player.Die += resetCrystal;
         
         On.Celeste.PlayerCollider.Check += disableIfCrystal;
 
         On.Celeste.TheoCrystal.Die += mCrystalDie;
+
+        On.Celeste.Holdable.Pickup += rememberHolder;
 
         CrystalRefill.enableHooks();
         MadelineCrystalEntity.enableHooks();
@@ -112,6 +131,8 @@ public class MadelineCrystalModule : EverestModule {
         On.Celeste.PlayerCollider.Check -= disableIfCrystal;
 
         On.Celeste.TheoCrystal.Die -= mCrystalDie;
+        
+        On.Celeste.Holdable.Pickup -= rememberHolder;
 
         CrystalRefill.disableHooks();
         MadelineCrystalEntity.disableHooks();

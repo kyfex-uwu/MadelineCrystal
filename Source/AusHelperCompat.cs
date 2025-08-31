@@ -20,7 +20,7 @@ public class AusHelperCompat {
         if (Engine.Scene is Level) {
             return MadelineCrystalEntity.playerFromCrystal.Keys.Count;
         }
-
+        
         return 0;
     }
     //1 on success

@@ -68,13 +68,25 @@ namespace Celeste.Mod.MadelineCrystal {
 
         public void OnCollide(object collided) {
             var player = this.SceneAs<Level>().Tracker.GetEntity<Player>();
-            if (collided is Player p && !this.legacyMode) player = p;
+            if (!this.legacyMode) {
+                if (collided is Player p) {
+                    player = p;
+                }
+                if (collided is Holdable h && 
+                    MadelineCrystalModule.holdingHoldable.TryGetValue(h, out var p2)){
+                    if (!(h.Entity is MadelineCrystalEntity c)) {
+                        player = p2;
+                    } else {
+                        player = c.containing;
+                    }
+                }
+            }
 
             if (player == null) return;//todo
             
             if (Usable(player) && cooldownTimer <= 0f) {
                 this.playSounds = true;
-                setCrystal(player, !MadelineCrystalModule.isCrystal(player));
+                setCrystal(player, !MadelineCrystalModule.isCrystal(player), this.legacyMode);
 
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
                 player.level.Flash(Color.White * 0.15f, drawPlayerOver: true);
@@ -86,14 +98,14 @@ namespace Celeste.Mod.MadelineCrystal {
             UpdateSprite(true);
         }
 
-        public static void setCrystal(Player player, bool inCrystal) {
+        public static void setCrystal(Player player, bool inCrystal, bool legacy=false) {
             if (inCrystal == MadelineCrystalModule.isCrystal(player)) return;
             if (player.level == null) return;//this fixes a bug but it makes me uncomfy
 
             if (MadelineCrystalModule.isCrystal(player)) {
                 MadelineCrystalEntity.reset(player);
             } else {
-                player.level.Add(new MadelineCrystalEntity(player.Position + player.Collider.BottomCenter, player));
+                player.level.Add(new MadelineCrystalEntity(player.Position + player.Collider.BottomCenter, player, legacy));
             }
             foreach (CrystalSwapListener listener in player.level.Tracker.GetComponents<CrystalSwapListener>()) {
                 listener.OnSwap();
