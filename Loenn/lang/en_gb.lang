@@ -1,7 +1,14 @@
 mods.MadelineCrystal.name=Madeline Crystal Helper
 
 entities.MadelineCrystal/MCrystalSwitcher.placements.name.switcher=Crystal Switcher
+entities.MadelineCrystal/MCrystalSwitcher.placements.description.switcher=A switch (think core switch) that toggles the player between being in or out of the crystal
+entities.MadelineCrystal/MCrystalSwitcher.attributes.name.toCrystal=Whether hitting this switch can put Madeline into a crystal
+entities.MadelineCrystal/MCrystalSwitcher.attributes.name.fromCrystal=Whether hitting this switch can take Madeline out of a crystal
+
 entities.MadelineCrystal/CrystalRefill.placements.name.refill=Crystal Refill
+entities.MadelineCrystal/CrystalRefill.placements.description.refill=A refill that makes it so the next time Madeline dashes, she gets put in a crystal
+entities.MadelineCrystal/CrystalRefill.attributes.name.oneUse=Whether this crystal will respawn or not
+entities.MadelineCrystal/CrystalRefill.attributes.name.legacyMode=Legacy behavior
 
 triggers.MadelineCrystal/SetCrystalTrigger.placements.name.incrystal=Set In-Crystal Trigger
 triggers.MadelineCrystal/CrystalZoneTrigger.placements.name.zone=Crystal Zone Trigger

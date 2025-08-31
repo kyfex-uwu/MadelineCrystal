@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Monocle;
 using System;
-using MonoMod.Utils;
+using System.Collections.Generic;
 
 namespace Celeste.Mod.MadelineCrystal;
 
@@ -44,7 +44,9 @@ public class MadelineCrystalModule : EverestModule {
         orig(self, scene);
     }
     private static bool disableIfCrystal(On.Celeste.PlayerCollider.orig_Check orig, PlayerCollider self, Player player) {
-        if (isCrystal(player)) return false;
+        if (isCrystal(player) &&
+            (!shouldReallyDisablePlayerCollision.TryGetValue(self.Entity.GetType(), out var func) ||
+             func.Invoke(self))) return false;
         return orig(self, player);
     }
     private static void mCrystalDie(On.Celeste.TheoCrystal.orig_Die orig, TheoCrystal self) {
@@ -56,7 +58,7 @@ public class MadelineCrystalModule : EverestModule {
     }
 
     [Command("crystalstate", "Puts the player into a crystal, or takes the player out of it. Modes: swap, crystal, none")]
-    private static void SetCrystalState(string mode = "swap") {
+    public static void SetCrystalState(string mode = "swap") {
         var scene = Celeste.Instance.scene;
         if (scene is not Level level) return;
         var player = level.Tracker.GetEntity<Player>();
@@ -82,11 +84,19 @@ public class MadelineCrystalModule : EverestModule {
         Engine.Commands.Log("No Player found");
     }
 
+    public static Dictionary<Type, Func<PlayerCollider, bool>> shouldReallyDisablePlayerCollision = new();
+
+    static MadelineCrystalModule() {
+        shouldReallyDisablePlayerCollision[typeof(Strawberry)] = self => {
+            if (!self.Entity.CollideCheck<BlockField>()) return true;
+            return false;
+        };
+    }
 
     public override void Load() {
         On.Celeste.Player.Added += onPlayerAdded;
         On.Celeste.Player.Die += resetCrystal;
-
+        
         On.Celeste.PlayerCollider.Check += disableIfCrystal;
 
         On.Celeste.TheoCrystal.Die += mCrystalDie;

@@ -5,8 +5,12 @@ local refill = {
     placements={
         name = "refill",
         data = {
-            oneUse = false
+            oneUse = false,
+            legacyMode = false
         }
+    },
+    fieldInformation={
+        legacyMode={default=false}
     }
 }
 

@@ -2,16 +2,18 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Cil;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.MadelineCrystal {
     [Tracked(true), CustomEntity("MadelineCrystal/CrystalRefill")]
     public class CrystalRefill : Refill {
-        public CrystalRefill(EntityData data, Vector2 offset) : this(data.Position + offset, data.Bool("oneUse")) {
+        private readonly bool legacyMode = false;
+        public CrystalRefill(EntityData data, Vector2 offset) : this(data.Position + offset, data.Bool("oneUse"), data.Bool("legacyMode")) {
         }
-        public CrystalRefill(Vector2 position, bool oneUse) : base(position, false, oneUse) { }
+
+        public CrystalRefill(Vector2 position, bool oneUse, bool legacyMode) : base(position, false, oneUse) {
+            this.legacyMode = legacyMode;
+        }
 
         private static ParticleType particle(ParticleType blueprint, Color c1, Color c2) {
             return new ParticleType(blueprint) {
@@ -46,20 +48,21 @@ namespace Celeste.Mod.MadelineCrystal {
 
         public static readonly HashSet<Player> shouldCrystalOnDash = new();
         private static void onPlayer(On.Celeste.Refill.orig_OnPlayer orig, Refill self, Player player) {
-            if(!(self is CrystalRefill)) {
+            if(!(self is CrystalRefill cRefill)) {
                 orig(self, player);
                 return;
             }
-            
-            if (!shouldCrystalOnDash.Contains(player)) {
-                if (player.Dashes < player.MaxDashes) player.Dashes = player.MaxDashes;
+
+            var targetedPlayer = cRefill.legacyMode ? self.Scene.Tracker.GetEntity<Player>() : player;
+            if (!shouldCrystalOnDash.Contains(targetedPlayer)) {
+                if (targetedPlayer.Dashes < targetedPlayer.MaxDashes) targetedPlayer.Dashes = targetedPlayer.MaxDashes;
                 Audio.Play("event:/game/general/diamond_touch", self.Position);
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
                 self.Collidable = false;
-                self.Add(new Coroutine(self.RefillRoutine(player)));
+                self.Add(new Coroutine(self.RefillRoutine(targetedPlayer)));
                 self.respawnTimer = 2.5f;
 
-                shouldCrystalOnDash.Add(player);
+                shouldCrystalOnDash.Add(targetedPlayer);
             }
         }
 

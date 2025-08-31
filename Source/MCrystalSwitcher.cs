@@ -14,9 +14,11 @@ namespace Celeste.Mod.MadelineCrystal {
         private bool playSounds=false;
         private float cooldownTimer=0f;
         private Sprite sprite;
+        private readonly bool legacyMode;
 
-        public MCrystalSwitcher(EntityData data, Vector2 offset) : this(data.Position+offset, data.Bool("toCrystal"), data.Bool("fromCrystal")) {}
-        public MCrystalSwitcher(Vector2 position, bool toCrystal, bool fromCrystal) : base(position) {
+        public MCrystalSwitcher(EntityData data, Vector2 offset) : this(data.Position+offset, data.Bool("toCrystal"), data.Bool("fromCrystal"), data.Bool("legacyMode")) {}
+        public MCrystalSwitcher(Vector2 position, bool toCrystal, bool fromCrystal, bool legacyMode) : base(position) {
+            this.legacyMode = legacyMode;
             this.toCrystal = toCrystal;
             this.fromCrystal = fromCrystal;
             base.Collider = new Hitbox(16f, 24f, -8f, -12f);
@@ -66,6 +68,8 @@ namespace Celeste.Mod.MadelineCrystal {
 
         public void OnCollide(object collided) {
             var player = this.SceneAs<Level>().Tracker.GetEntity<Player>();
+            if (collided is Player p && !this.legacyMode) player = p;
+
             if (player == null) return;//todo
             
             if (Usable(player) && cooldownTimer <= 0f) {

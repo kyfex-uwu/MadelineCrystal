@@ -8,8 +8,12 @@ local switcher = {
         name="switcher",
         data={
             toCrystal=true,
-            fromCrystal=true
+            fromCrystal=true,
+            legacyMode = false
         }
+    },
+    fieldInformation={
+        legacyMode={default=false}
     },
     depth=2000,
 
