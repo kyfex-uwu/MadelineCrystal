@@ -6,13 +6,16 @@ namespace Celeste.Mod.MadelineCrystal;
 
 public class AusHelperCompat {
     public static void Load() {
+    }
+
+    public static void LoadIOP() {
         ChannelIop.registerIopFunc("MCrysHelper_getCrystal", getCrystal);
         ChannelIop.registerIopFunc("MCrysHelper_setCrystal", setCrystal);
     }
 
     public static void Unload() {
-        ChannelIop.deregisterIopFunc("MCrysHelper_getCrystal", getCrystal);
-        ChannelIop.deregisterIopFunc("MCrysHelper_setCrystal", setCrystal);
+        // ChannelIop.deregisterIopFunc("MCrysHelper_getCrystal", getCrystal);
+        // ChannelIop.deregisterIopFunc("MCrysHelper_setCrystal", setCrystal);
     }
 
     //returns number of crystals 

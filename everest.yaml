@@ -1,5 +1,5 @@
 - Name: MadelineCrystal
-  Version: 1.5.2
+  Version: 1.6.1
   DLL: bin/MadelineCrystal.dll
   Dependencies:
     - Name: EverestCore
@@ -7,3 +7,5 @@
   OptionalDependencies:
     - Name: PandorasBox
       Version: 1.0.49
+    - Name: auspicioushelper
+      Version: 0.2.11

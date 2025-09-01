@@ -122,6 +122,8 @@ public class MadelineCrystalModule : EverestModule {
 
         CrystalRefill.enableHooks();
         MadelineCrystalEntity.enableHooks();
+        
+        if(hasAuspicious) AusHelperCompat.Load();
     }
 
     public override void Unload() {
@@ -136,13 +138,17 @@ public class MadelineCrystalModule : EverestModule {
 
         CrystalRefill.disableHooks();
         MadelineCrystalEntity.disableHooks();
+        
+        if(hasAuspicious) AusHelperCompat.Unload();
     }
 
     //hi brokemia helper
     private static EverestModuleMetadata celesteNetDependency = new EverestModuleMetadata { Name = "CelesteNet.Client", Version = new Version(2, 4, 1) };
     private static EverestModuleMetadata pandorasDependency = new EverestModuleMetadata { Name = "PandorasBox", Version = new Version(1, 0, 49) };
+    private static EverestModuleMetadata auspiciousDependency = new EverestModuleMetadata { Name = "auspicioushelper", Version = new Version(0,2,11) };
     public static readonly bool hasCelesteNet = Everest.Loader.DependencyLoaded(celesteNetDependency);
     public static readonly bool hasPandoras = Everest.Loader.DependencyLoaded(pandorasDependency);
+    public static readonly bool hasAuspicious = Everest.Loader.DependencyLoaded(auspiciousDependency);
     public static bool CelesteNetConnected() {
         return hasCelesteNet && MiscStuff.clientConnected();
     }
