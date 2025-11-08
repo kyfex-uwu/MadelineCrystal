@@ -15,7 +15,25 @@ namespace Celeste.Mod.MadelineCrystal {
         public static void reset(Player player) {
             if(MadelineCrystalModule.isCrystal(player)) reset(crystalFromPlayer[player]);
         }
+
+        private static void cleanPlayers() {
+            var keys = playerFromCrystal.Keys;
+            foreach(var crystal in keys) {
+                if (playerFromCrystal[crystal].level == null) {
+                    crystalFromPlayer.Remove(playerFromCrystal[crystal]);
+                    playerFromCrystal.Remove(crystal);
+                }
+            }
+            // var keys2 = crystalFromPlayer.Keys;
+            // foreach(var player in keys2) {
+            //     if (crystalFromPlayer[player].containing == null) {
+            //         crystalFromPlayer.Remove(playerFromCrystal[crystal]);
+            //         playerFromCrystal.Remove(crystal);
+            //     }
+            // }
+        }
         public static void reset(MadelineCrystalEntity toReset) {
+            Logger.Error("MadelineCrystal", "owo");
             if (toReset != null) {
                 toReset.containing.Visible = true;
                 toReset.containing.StateMachine.State = 0;
@@ -28,6 +46,7 @@ namespace Celeste.Mod.MadelineCrystal {
                 toReset.dead = true;
                 playerFromCrystal.Remove(toReset);
                 crystalFromPlayer.Remove(toReset.containing);
+                cleanPlayers();
                 if(playerFromCrystal.Keys.Count == 0)
                     toReset.Level.Session.SetFlag(isCrystalFlag, false);
 
