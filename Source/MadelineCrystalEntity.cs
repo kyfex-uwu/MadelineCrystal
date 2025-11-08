@@ -33,7 +33,7 @@ namespace Celeste.Mod.MadelineCrystal {
             // }
         }
         public static void reset(MadelineCrystalEntity toReset) {
-            Logger.Error("MadelineCrystal", "owo");
+            // Logger.Error("MadelineCrystal", "owo");
             if (toReset != null) {
                 toReset.containing.Visible = true;
                 toReset.containing.StateMachine.State = 0;
