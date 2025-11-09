@@ -36,6 +36,7 @@ public class MadelineCrystalModule : EverestModule {
         if (!evenIfInvincible && isCrystal(self)) return null;
 
         CrystalRefill.setCrystalOnDash(self,false);
+        if(isCrystal(self)) MadelineCrystalEntity.reset(self);
         return orig(self, direction, evenIfInvincible, registerDeathInStats);
     }
 

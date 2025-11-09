@@ -24,13 +24,13 @@ namespace Celeste.Mod.MadelineCrystal {
                     playerFromCrystal.Remove(crystal);
                 }
             }
-            // var keys2 = crystalFromPlayer.Keys;
-            // foreach(var player in keys2) {
-            //     if (crystalFromPlayer[player].containing == null) {
-            //         crystalFromPlayer.Remove(playerFromCrystal[crystal]);
-            //         playerFromCrystal.Remove(crystal);
-            //     }
-            // }
+            var keys2 = crystalFromPlayer.Keys;
+            foreach(var player in keys2) {
+                if (!crystalFromPlayer[player].Scene.Entities.entities.Contains(crystalFromPlayer[player])) {
+                    playerFromCrystal.Remove(crystalFromPlayer[player]);
+                    crystalFromPlayer.Remove(player);   
+                }
+            }
         }
         public static void reset(MadelineCrystalEntity toReset) {
             // Logger.Error("MadelineCrystal", "owo");
