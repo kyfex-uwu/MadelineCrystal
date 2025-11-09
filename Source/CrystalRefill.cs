@@ -46,19 +46,24 @@ namespace Celeste.Mod.MadelineCrystal {
             cursor.EmitStloc0();
         }
 
-        private static readonly HashSet<Player> shouldCrystalOnDash = new();
+        private static readonly Dictionary<Player, int> shouldCrystalOnDash = new();
         private static readonly HashSet<Player> shouldCrystalOnDashLegacy = new();
 
-        public static void setCrystalOnDash(Player player, bool should, bool legacy=false) {
+        public static void setCrystalOnDash(Player player, int amt, bool legacy=false) {
             if (legacy) {
                 shouldCrystalOnDash.Remove(player);
-                if (!should) shouldCrystalOnDashLegacy.Remove(player);
+                if(amt <= 0) shouldCrystalOnDashLegacy.Remove(player);
                 else shouldCrystalOnDashLegacy.Add(player);
             }else{
                 shouldCrystalOnDashLegacy.Remove(player);
-                if (!should) shouldCrystalOnDash.Remove(player);
-                else shouldCrystalOnDash.Add(player);
+                if (amt <= 0) shouldCrystalOnDash.Remove(player);
+                else shouldCrystalOnDash[player] = amt;
             }
+        }
+
+        public static int getCrystalDashes(Player player) {
+            if (shouldCrystalOnDash.ContainsKey(player)) return shouldCrystalOnDash[player];
+            return 0;
         }
 
         public static void clearCrystalOnDash() {
@@ -73,7 +78,7 @@ namespace Celeste.Mod.MadelineCrystal {
         }
 
         public static ShouldCrystalOnDashVal ShouldCrystalOnDash(Player player) {
-            if (shouldCrystalOnDash.Contains(player)) return ShouldCrystalOnDashVal.TRUE;
+            if (shouldCrystalOnDash.ContainsKey(player) && shouldCrystalOnDash[player]>0) return ShouldCrystalOnDashVal.TRUE;
             if (shouldCrystalOnDashLegacy.Contains(player)) return ShouldCrystalOnDashVal.LEGACY;
             return ShouldCrystalOnDashVal.FALSE;
         }
@@ -92,7 +97,7 @@ namespace Celeste.Mod.MadelineCrystal {
                 self.Add(new Coroutine(self.RefillRoutine(targetedPlayer)));
                 self.respawnTimer = 2.5f;
 
-                setCrystalOnDash(targetedPlayer, true, cRefill.legacyMode);
+                setCrystalOnDash(targetedPlayer, 1, cRefill.legacyMode);
             }
         }
 
@@ -102,7 +107,7 @@ namespace Celeste.Mod.MadelineCrystal {
                 var should = ShouldCrystalOnDash(self);
                 if (should!=ShouldCrystalOnDashVal.FALSE || MadelineCrystalModule.Session.shouldAlwaysCrystalOnDash) {
                     MCrystalSwitcher.setCrystal(self, true, should==ShouldCrystalOnDashVal.LEGACY);
-                    setCrystalOnDash(self,false);
+                    setCrystalOnDash(self,getCrystalDashes(self)-1);
                 }
             }));
         }

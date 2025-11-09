@@ -35,13 +35,13 @@ public class MadelineCrystalModule : EverestModule {
     private static PlayerDeadBody resetCrystal(On.Celeste.Player.orig_Die orig, Player self, Vector2 direction, bool evenIfInvincible, bool registerDeathInStats) {
         if (!evenIfInvincible && isCrystal(self)) return null;
 
-        CrystalRefill.setCrystalOnDash(self,false);
+        CrystalRefill.setCrystalOnDash(self,0);
         if(isCrystal(self)) MadelineCrystalEntity.reset(self);
         return orig(self, direction, evenIfInvincible, registerDeathInStats);
     }
 
     private static void onPlayerAdded(On.Celeste.Player.orig_Added orig, Player self, Scene scene) {
-        CrystalRefill.setCrystalOnDash(self,false);
+        CrystalRefill.setCrystalOnDash(self,0);
         orig(self, scene);
     }
 
@@ -123,6 +123,8 @@ public class MadelineCrystalModule : EverestModule {
 
         CrystalRefill.enableHooks();
         MadelineCrystalEntity.enableHooks();
+
+        // Everest.Events.AssetReload.OnAfterReload += MadelineCrystalEntity.onReload;
         
         if(hasAuspicious) AusHelperCompat.Load();
     }

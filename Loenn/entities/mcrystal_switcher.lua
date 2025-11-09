@@ -16,6 +16,7 @@ local switcher = {
         legacyMode={default=false}
     },
     fieldOrder={
+        "x","y",
         "toCrystal", "fromCrystal",
         "legacyMode",
     },

@@ -58,6 +58,12 @@ namespace Celeste.Mod.MadelineCrystal {
             }
         }
         
+        public static void onReload(bool silent) {
+            // foreach (var player in crystalFromPlayer.Keys) {
+            //     MCrystalSwitcher.setCrystal(player, true);
+            // }
+        }
+        
         public readonly Player containing;
         private static Color shatterColor = Color.Transparent;
         public readonly bool legacyBehavior;

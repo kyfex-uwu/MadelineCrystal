@@ -5,6 +5,7 @@ return {
         data={
             crystal=true,
             mode=0,
+            oneTime=true,
         }
     },
     fieldInformation={
@@ -15,6 +16,13 @@ return {
                 exit=1
             },
             editable=false
+        },
+        oneTime={
+            default=false,
         }
+    },
+    fieldOrder={
+        "x","y","width","height",
+        "mode","crystal","oneTime"    
     }
 }

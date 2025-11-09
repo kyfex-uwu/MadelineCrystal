@@ -5,15 +5,15 @@ namespace Celeste.Mod.MadelineCrystal {
     [CustomEntity("MadelineCrystal/SetCrystalTrigger")]
     public class SetCrystalTrigger : Trigger {
         private readonly bool inCrystal;
-        private readonly int mode;
+        private readonly Mode mode;
+
+        public enum Mode {
+            ENTER,
+            LEAVE
+        }
         public SetCrystalTrigger(EntityData data, Vector2 offset) : base(data, offset) {
             this.inCrystal = data.Bool("crystal");
-            this.mode = data.Int("mode");
-            /**modes:
-             * 0 - on enter
-             * 1 - on leave
-             * 
-             */
+            this.mode = data.Enum("mode", Mode.ENTER);
         }
         public override void OnEnter(Player player) {
             base.OnEnter(player);
@@ -23,7 +23,7 @@ namespace Celeste.Mod.MadelineCrystal {
         }
         public override void OnLeave(Player player) {
             base.OnLeave(player);
-            if (this.mode != 1) return;
+            if (this.mode != Mode.LEAVE) return;
 
             MCrystalSwitcher.setCrystal(player, this.inCrystal);
         }

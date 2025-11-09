@@ -4,13 +4,32 @@ entities.MadelineCrystal/MCrystalSwitcher.placements.name.switcher=Crystal Switc
 entities.MadelineCrystal/MCrystalSwitcher.placements.description.switcher=A switch (think core switch) that toggles the player between being in or out of the crystal
 entities.MadelineCrystal/MCrystalSwitcher.attributes.description.toCrystal=Whether hitting this switch can put Madeline into a crystal
 entities.MadelineCrystal/MCrystalSwitcher.attributes.description.fromCrystal=Whether hitting this switch can take Madeline out of a crystal
+entities.MadelineCrystal/MCrystalSwitcher.attributes.description.legacyMode=not recommended!
 
 entities.MadelineCrystal/CrystalRefill.placements.name.refill=Crystal Refill
 entities.MadelineCrystal/CrystalRefill.placements.description.refill=A refill that makes it so the next time Madeline dashes, she gets put in a crystal
 entities.MadelineCrystal/CrystalRefill.attributes.description.oneUse=Whether this crystal will respawn or not
 entities.MadelineCrystal/CrystalRefill.attributes.name.legacyMode=Legacy behavior
+entities.MadelineCrystal/CrystalRefill.attributes.description.legacyMode=not recommended!
 
 triggers.MadelineCrystal/SetCrystalTrigger.placements.name.incrystal=Set In-Crystal Trigger
+triggers.MadelineCrystal/SetCrystalTrigger.placements.description.incrystal=Puts the player in or out of a crystal
+triggers.MadelineCrystal/SetCrystalTrigger.attributes.description.crystal=Whether the player should be in a crystal or not
+triggers.MadelineCrystal/SetCrystalTrigger.attributes.description.mode=Should this trigger on player enter or exit
+
 triggers.MadelineCrystal/CrystalZoneTrigger.placements.name.zone=Crystal Zone Trigger
+triggers.MadelineCrystal/CrystalZoneTrigger.placements.description.zone=While the player is inside, put them in a crystal
+
 triggers.MadelineCrystal/CrystalInventoryTrigger.placements.name.inv=Crystal Pseudo-Inventory Trigger
-triggers.MadelineCrystal/KillIfCrystalTrigger.placements.name.zone=Kill When Crystal Trigger
+triggers.MadelineCrystal/CrystalInventoryTrigger.placements.description.inv=When the player dashes, put them in a crystal
+triggers.MadelineCrystal/CrystalInventoryTrigger.attributes.description.shouldCrystal=If this inventory should be applied or disabled
+
+triggers.MadelineCrystal/KillIfCrystalTrigger.placements.name.zone=Kill If Crystal Trigger
+triggers.MadelineCrystal/KillIfCrystalTrigger.placements.description.zone=guess :3
+
+triggers.MadelineCrystal/GiveCrystalDashesTrigger.placements.name.main=Give Crystal Dashes Trigger
+triggers.MadelineCrystal/GiveCrystalDashesTrigger.placements.description.main=Adds/sets the player's number of crystal dashes
+triggers.MadelineCrystal/GiveCrystalDashesTrigger.attributes.name.amt=Dash Amount
+triggers.MadelineCrystal/GiveCrystalDashesTrigger.attributes.description.amt=The amount of dashes to add/set
+triggers.MadelineCrystal/GiveCrystalDashesTrigger.attributes.description.setMode=Whether to add to the player's crystal dashes or to set the amount of them
+triggers.MadelineCrystal/GiveCrystalDashesTrigger.attributes.description.mode=Should this trigger on player enter or exit
