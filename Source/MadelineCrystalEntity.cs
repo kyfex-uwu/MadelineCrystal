@@ -16,7 +16,7 @@ namespace Celeste.Mod.MadelineCrystal {
             if(MadelineCrystalModule.isCrystal(player)) reset(crystalFromPlayer[player]);
         }
 
-        private static void cleanPlayers() {
+        private static void cleanPlayers(Level level) {
             var keys = playerFromCrystal.Keys;
             foreach(var crystal in keys) {
                 if (playerFromCrystal[crystal].level == null) {
@@ -31,6 +31,8 @@ namespace Celeste.Mod.MadelineCrystal {
                     crystalFromPlayer.Remove(player);   
                 }
             }
+            if(playerFromCrystal.Keys.Count == 0)
+                level.Session.SetFlag(isCrystalFlag, false);
         }
         public static void reset(MadelineCrystalEntity toReset) {
             // Logger.Error("MadelineCrystal", "owo");
@@ -46,9 +48,7 @@ namespace Celeste.Mod.MadelineCrystal {
                 toReset.dead = true;
                 playerFromCrystal.Remove(toReset);
                 crystalFromPlayer.Remove(toReset.containing);
-                cleanPlayers();
-                if(playerFromCrystal.Keys.Count == 0)
-                    toReset.Level.Session.SetFlag(isCrystalFlag, false);
+                cleanPlayers(toReset.Level);
 
                 if (toReset.legacyBehavior) {
                     foreach (Player player in toReset.Scene.Tracker.GetEntities<Player>()) {
@@ -56,12 +56,6 @@ namespace Celeste.Mod.MadelineCrystal {
                     }
                 }
             }
-        }
-        
-        public static void onReload(bool silent) {
-            // foreach (var player in crystalFromPlayer.Keys) {
-            //     MCrystalSwitcher.setCrystal(player, true);
-            // }
         }
         
         public readonly Player containing;
@@ -187,13 +181,20 @@ namespace Celeste.Mod.MadelineCrystal {
             orig(self, player);
             self.Tracker.Entities[typeof(TheoCrystal)] = old;
         }
+
+        private static void playerAdded(On.Celeste.Player.orig_Added orig, Player player, Scene scene) {
+            orig(player, scene);
+            cleanPlayers(player.level);
+        }
         public static void enableHooks() {
             IL.Celeste.TheoCrystal.Update += allowTransitions;
             On.Celeste.Level.EnforceBounds += ignoreMadelineCrystal;
+            On.Celeste.Player.Added += playerAdded;
         }
         public static void disableHooks() {
             IL.Celeste.TheoCrystal.Update -= allowTransitions;
-            On.Celeste.Level.EnforceBounds += ignoreMadelineCrystal;
+            On.Celeste.Level.EnforceBounds -= ignoreMadelineCrystal;
+            On.Celeste.Player.Added -= playerAdded;
         }
 
         //--
